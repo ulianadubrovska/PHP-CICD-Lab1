@@ -1,12 +1,45 @@
-
 # PHP CI/CD Lab 1
 
-A simple PHP project for learning Git, GitHub and CI/CD.
+![PHP CI Application](https://github.com/ulianadubrovska/PHP-CICD-Lab1/actions/workflows/php-ci.yml/badge.svg)
 
-## Project goals
+## Description
 
-- Learn version control using Git
-- Practice GitHub Pull Requests
-- Configure automated testing with GitHub Actions
-- Check code style using Laravel Pint
-- Run unit tests using PHPUnit
+A simple PHP calculator project created to practice
+Git version control and CI/CD automation using GitHub Actions.
+
+## Features
+
+- Addition of two numbers
+- Subtraction of two numbers
+- Automated unit testing with PHPUnit
+- Code style validation using Laravel Pint
+- Automated CI pipeline with GitHub Actions
+
+## Technologies
+
+- PHP 8.2
+- Composer
+- PHPUnit
+- Laravel Pint
+- Git and GitHub
+- GitHub Actions
+
+## Running Tests
+
+Install dependencies:
+
+```bash
+composer install
+```
+
+Run unit tests:
+
+```bash
+./vendor/bin/phpunit tests/Unit
+```
+
+Check code style:
+
+```bash
+./vendor/bin/pint --test
+```
