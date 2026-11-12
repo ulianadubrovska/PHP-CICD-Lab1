@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Online Store - Use Case Diagram
+
+actor Guest
+actor Customer
+actor Administrator
+
+Customer --|> Guest
+
+rectangle "Online Store System" {
+    usecase "Browse Catalog" as UC1
+    usecase "Search Product" as UC2
+    usecase "Register Account" as UC3
+
+    usecase "Add Product to Cart" as UC4
+    usecase "Place Order" as UC5
+    usecase "View Order History" as UC6
+
+    usecase "Manage Products" as UC7
+    usecase "Manage Orders" as UC8
+    usecase "View Sales Reports" as UC9
+
+    usecase "Check Stock" as UC10
+    usecase "Select Payment Method" as UC11
+    usecase "Apply Discount" as UC12
+
+    usecase "Search by Name" as UC13
+    usecase "Search by Category" as UC14
+}
+
+Guest -- UC1
+Guest -- UC2
+Guest -- UC3
+
+Customer -- UC4
+Customer -- UC5
+Customer -- UC6
+
+Administrator -- UC7
+Administrator -- UC8
+Administrator -- UC9
+
+UC5 ..> UC10 : <<include>>
+UC5 ..> UC11 : <<include>>
+UC12 ..> UC5 : <<extend>>
+
+UC13 --|> UC2
+UC14 --|> UC2
+
+@enduml

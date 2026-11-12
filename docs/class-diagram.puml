@@ -1,0 +1,191 @@
+@startuml
+title Online Store - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+hide empty members
+
+package "Models" {
+
+class User {
+  +id: Integer
+  +name: String
+  +email: String
+  -passwordHash: String
+  +createdAt: DateTime
+  +register(): Boolean
+  +login(password: String): Boolean
+  +logout(): Void
+  +updateProfile(name: String): Boolean
+  +changePassword(password: String): Boolean
+}
+
+class Customer {
+  +customerId: Integer
+  +phone: String
+  +address: String
+  +status: String
+  +loyaltyPoints: Integer
+  +browseProducts(): List
+  +addToCart(productId: Integer): Boolean
+  +removeFromCart(productId: Integer): Boolean
+  +placeOrder(): Order
+  +viewOrders(): List
+}
+
+class Administrator {
+  +adminId: Integer
+  +role: String
+  +permissions: String
+  +department: String
+  +isActive: Boolean
+  +addProduct(product: Product): Boolean
+  +editProduct(id: Integer): Boolean
+  +deleteProduct(id: Integer): Boolean
+  +manageOrders(): List
+  +generateReport(): String
+}
+
+class Product {
+  +id: Integer
+  +name: String
+  +description: String
+  +price: Decimal
+  +stock: Integer
+  +getDetails(): String
+  +updatePrice(price: Decimal): Void
+  +updateStock(qty: Integer): Void
+  +isAvailable(): Boolean
+  +applyDiscount(percent: Decimal): Void
+}
+
+class Category {
+  +id: Integer
+  +name: String
+  +description: String
+  +slug: String
+  +isActive: Boolean
+  +addProduct(product: Product): Void
+  +removeProduct(id: Integer): Void
+  +getProducts(): List
+  +updateName(name: String): Void
+  +setActive(active: Boolean): Void
+}
+
+class Cart {
+  +id: Integer
+  +customerId: Integer
+  +totalPrice: Decimal
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +addItem(product: Product): Void
+  +removeItem(id: Integer): Void
+  +calculateTotal(): Decimal
+  +clearCart(): Void
+  +getItems(): List
+}
+
+class CartItem {
+  +id: Integer
+  +cartId: Integer
+  +productId: Integer
+  +quantity: Integer
+  +unitPrice: Decimal
+  +increaseQuantity(qty: Integer): Void
+  +decreaseQuantity(qty: Integer): Void
+  +getSubtotal(): Decimal
+  +updateQuantity(qty: Integer): Void
+  +getProduct(): Product
+}
+
+class Order {
+  +id: Integer
+  +customerId: Integer
+  +status: String
+  +totalAmount: Decimal
+  +createdAt: DateTime
+  +createOrder(): Boolean
+  +cancelOrder(): Boolean
+  +updateStatus(status: String): Void
+  +calculateTotal(): Decimal
+  +getDetails(): String
+}
+
+class OrderItem {
+  +id: Integer
+  +orderId: Integer
+  +productId: Integer
+  +quantity: Integer
+  +unitPrice: Decimal
+  +getSubtotal(): Decimal
+  +updateQuantity(qty: Integer): Void
+  +getProduct(): Product
+  +getQuantity(): Integer
+  +getPrice(): Decimal
+}
+
+class Payment {
+  +id: Integer
+  +orderId: Integer
+  +amount: Decimal
+  +method: String
+  +status: String
+  +processPayment(): Boolean
+  +refundPayment(): Boolean
+  +verifyPayment(): Boolean
+  +getStatus(): String
+  +updateStatus(status: String): Void
+}
+
+}
+
+package "Controllers" {
+
+class ProductController {
+  +id: Integer
+  +requestCount: Integer
+  +defaultPageSize: Integer
+  +sortField: String
+  +sortDirection: String
+  +index(): List
+  +show(id: Integer): Product
+  +store(data: Map): Boolean
+  +update(id: Integer, data: Map): Boolean
+  +destroy(id: Integer): Boolean
+}
+
+class OrderController {
+  +id: Integer
+  +requestCount: Integer
+  +defaultPageSize: Integer
+  +defaultStatus: String
+  +sortDirection: String
+  +index(): List
+  +show(id: Integer): Order
+  +store(data: Map): Boolean
+  +updateStatus(id: Integer, status: String): Boolean
+  +cancel(id: Integer): Boolean
+}
+
+}
+
+Customer --|> User
+Administrator --|> User
+
+Product "0..*" --> "1" Category
+Customer "1" --> "0..*" Order
+
+Customer "1" o-- "0..1" Cart
+
+Cart "1" *-- "0..*" CartItem
+Order "1" *-- "1..*" OrderItem
+Order "1" *-- "0..1" Payment
+
+CartItem --> Product
+OrderItem --> Product
+
+ProductController ..> Product
+ProductController ..> Category
+OrderController ..> Order
+OrderController ..> Payment
+
+@enduml
