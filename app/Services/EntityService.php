@@ -1,35 +1,63 @@
 <?php
 
-// Увімкнення строгої типізації для цього PHP-файлу.
 declare(strict_types=1);
 
-// ЗАВДАННЯ 2
-// Функція обчислює загальну вартість покупки.
-// float $price — ціна одного товару.
-// int $quantity — кількість товарів.
-// : float — тип результату, який повертає функція.
-function calculateTotal(float $price, int $quantity): float
-{
-    // Множимо ціну одного товару на кількість.
-    // return повертає обчислений результат.
-    return $price * $quantity;
-}
+namespace App\Services;
 
-// ЗАВДАННЯ 4
-// Функція застосовує відсоткову знижку до ціни.
-// $price — початкова ціна товару.
-// $discount — розмір знижки у відсотках.
-function applyDiscount(float $price, float $discount): float
-{
-    // Перевіряємо, чи знаходиться знижка в межах 0–100%.
-    if ($discount < 0 || $discount > 100) {
+use App\Interfaces\LoggerInterface;
+use App\Models\AbstractEntity;
+use InvalidArgumentException;
 
-        // Якщо значення неправильне, створюємо виняток.
-        throw new Exception('Неприпустиме значення знижки!');
+class EntityService
+{
+    // Dependency Injection:
+    // отримуємо логер через конструктор
+    public function __construct(
+        private LoggerInterface $logger
+    ) {}
+
+    // Лабораторна №3: розрахунок вартості
+    public function calculateTotal(
+        float $price,
+        int $quantity
+    ): float {
+        $total = $price * $quantity;
+
+        $this->logger->log(
+            'Обчислено загальну вартість покупки'
+        );
+
+        return $total;
     }
 
-    // Обчислюємо ціну після застосування знижки.
-    // Спочатку знаходимо розмір знижки,
-    // а потім віднімаємо його від початкової ціни.
-    return $price - ($price * $discount / 100);
+    // Лабораторна №3: застосування знижки
+    public function applyDiscount(
+        float $price,
+        float $discount
+    ): float {
+        if ($discount < 0 || $discount > 100) {
+            throw new InvalidArgumentException(
+                'Неприпустиме значення знижки!'
+            );
+        }
+
+        $result = $price - ($price * $discount / 100);
+
+        $this->logger->log(
+            "Застосовано знижку {$discount}%"
+        );
+
+        return $result;
+    }
+
+    // Лабораторна №4: робота з моделями
+    public function showEntity(
+        AbstractEntity $entity
+    ): void {
+        $this->logger->log(
+            'Отримано інформацію про об’єкт'
+        );
+
+        echo $entity->getDetails()."\n";
+    }
 }
