@@ -1,5 +1,7 @@
+
 @startuml
-title Online Store - Class Diagram
+title Інтернет-магазин одягу та аксесуарів - Діаграма класів
+
 skinparam classAttributeIconSize 0
 skinparam shadowing false
 hide empty members
@@ -26,8 +28,8 @@ class Customer {
   +status: String
   +loyaltyPoints: Integer
   +browseProducts(): List
-  +addToCart(productId: Integer): Boolean
-  +removeFromCart(productId: Integer): Boolean
+  +addToCart(variantId: Integer): Boolean
+  +removeFromCart(variantId: Integer): Boolean
   +placeOrder(): Order
   +viewOrders(): List
 }
@@ -41,6 +43,7 @@ class Administrator {
   +addProduct(product: Product): Boolean
   +editProduct(id: Integer): Boolean
   +deleteProduct(id: Integer): Boolean
+  +manageProductVariants(): Void
   +manageOrders(): List
   +generateReport(): String
 }
@@ -56,6 +59,21 @@ class Product {
   +updateStock(qty: Integer): Void
   +isAvailable(): Boolean
   +applyDiscount(percent: Decimal): Void
+  +getVariants(): List
+}
+
+class ProductVariant {
+  +id: Integer
+  +productId: Integer
+  +size: String
+  +color: String
+  +sku: String
+  +price: Decimal
+  +stock: Integer
+  +isAvailable(): Boolean
+  +updateStock(qty: Integer): Void
+  +updatePrice(price: Decimal): Void
+  +getDetails(): String
 }
 
 class Category {
@@ -77,7 +95,7 @@ class Cart {
   +totalPrice: Decimal
   +createdAt: DateTime
   +updatedAt: DateTime
-  +addItem(product: Product): Void
+  +addItem(variant: ProductVariant): Void
   +removeItem(id: Integer): Void
   +calculateTotal(): Decimal
   +clearCart(): Void
@@ -87,14 +105,14 @@ class Cart {
 class CartItem {
   +id: Integer
   +cartId: Integer
-  +productId: Integer
+  +variantId: Integer
   +quantity: Integer
   +unitPrice: Decimal
   +increaseQuantity(qty: Integer): Void
   +decreaseQuantity(qty: Integer): Void
   +getSubtotal(): Decimal
   +updateQuantity(qty: Integer): Void
-  +getProduct(): Product
+  +getVariant(): ProductVariant
 }
 
 class Order {
@@ -113,12 +131,12 @@ class Order {
 class OrderItem {
   +id: Integer
   +orderId: Integer
-  +productId: Integer
+  +variantId: Integer
   +quantity: Integer
   +unitPrice: Decimal
   +getSubtotal(): Decimal
   +updateQuantity(qty: Integer): Void
-  +getProduct(): Product
+  +getVariant(): ProductVariant
   +getQuantity(): Integer
   +getPrice(): Decimal
 }
@@ -151,6 +169,7 @@ class ProductController {
   +store(data: Map): Boolean
   +update(id: Integer, data: Map): Boolean
   +destroy(id: Integer): Boolean
+  +getVariants(productId: Integer): List
 }
 
 class OrderController {
@@ -168,23 +187,36 @@ class OrderController {
 
 }
 
+' Наслідування
 Customer --|> User
 Administrator --|> User
 
+' Категорії і товари
 Product "0..*" --> "1" Category
+
+' Один товар має багато варіантів
+Product "1" *-- "0..*" ProductVariant
+
+' Покупці та замовлення
 Customer "1" --> "0..*" Order
 
+' Кошик покупця
 Customer "1" o-- "0..1" Cart
 
+' Позиції кошика і замовлення
 Cart "1" *-- "0..*" CartItem
 Order "1" *-- "1..*" OrderItem
 Order "1" *-- "0..1" Payment
 
-CartItem --> Product
-OrderItem --> Product
+' Позиції посилаються на конкретний варіант товару
+CartItem "0..*" --> "1" ProductVariant
+OrderItem "0..*" --> "1" ProductVariant
 
+' Залежності контролерів
 ProductController ..> Product
+ProductController ..> ProductVariant
 ProductController ..> Category
+
 OrderController ..> Order
 OrderController ..> Payment
 
