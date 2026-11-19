@@ -1,10 +1,10 @@
 
 @startuml
-title Інтернет-магазин одягу та аксесуарів - Діаграма класів
+title Clothing & Accessories Store - Class Diagram
 
 skinparam classAttributeIconSize 0
 skinparam shadowing false
-hide empty members
+left to right direction
 
 package "Models" {
 
@@ -24,12 +24,12 @@ class User {
 class Customer {
   +customerId: Integer
   +phone: String
-  +address: String
   +status: String
   +loyaltyPoints: Integer
+  +createdAt: DateTime
   +browseProducts(): List
   +addToCart(variantId: Integer): Boolean
-  +removeFromCart(variantId: Integer): Boolean
+  +removeFromCart(itemId: Integer): Boolean
   +placeOrder(): Order
   +viewOrders(): List
 }
@@ -43,7 +43,6 @@ class Administrator {
   +addProduct(product: Product): Boolean
   +editProduct(id: Integer): Boolean
   +deleteProduct(id: Integer): Boolean
-  +manageProductVariants(): Void
   +manageOrders(): List
   +generateReport(): String
 }
@@ -52,14 +51,13 @@ class Product {
   +id: Integer
   +name: String
   +description: String
-  +price: Decimal
-  +stock: Integer
+  +categoryId: Integer
+  +createdAt: DateTime
   +getDetails(): String
-  +updatePrice(price: Decimal): Void
-  +updateStock(qty: Integer): Void
-  +isAvailable(): Boolean
-  +applyDiscount(percent: Decimal): Void
+  +updateName(name: String): Void
+  +updateDescription(text: String): Void
   +getVariants(): List
+  +isAvailable(): Boolean
 }
 
 class ProductVariant {
@@ -70,10 +68,11 @@ class ProductVariant {
   +sku: String
   +price: Decimal
   +stock: Integer
-  +isAvailable(): Boolean
-  +updateStock(qty: Integer): Void
-  +updatePrice(price: Decimal): Void
   +getDetails(): String
+  +updatePrice(price: Decimal): Void
+  +updateStock(qty: Integer): Void
+  +isAvailable(qty: Integer): Boolean
+  +getSKU(): String
 }
 
 class Category {
@@ -95,7 +94,7 @@ class Cart {
   +totalPrice: Decimal
   +createdAt: DateTime
   +updatedAt: DateTime
-  +addItem(variant: ProductVariant): Void
+  +addItem(variantId: Integer): Void
   +removeItem(id: Integer): Void
   +calculateTotal(): Decimal
   +clearCart(): Void
@@ -105,7 +104,7 @@ class Cart {
 class CartItem {
   +id: Integer
   +cartId: Integer
-  +variantId: Integer
+  +productVariantId: Integer
   +quantity: Integer
   +unitPrice: Decimal
   +increaseQuantity(qty: Integer): Void
@@ -131,7 +130,7 @@ class Order {
 class OrderItem {
   +id: Integer
   +orderId: Integer
-  +variantId: Integer
+  +productVariantId: Integer
   +quantity: Integer
   +unitPrice: Decimal
   +getSubtotal(): Decimal
@@ -154,6 +153,19 @@ class Payment {
   +updateStatus(status: String): Void
 }
 
+class Address {
+  +id: Integer
+  +customerId: Integer
+  +city: String
+  +street: String
+  +postalCode: String
+  +getFullAddress(): String
+  +updateCity(city: String): Void
+  +updateStreet(street: String): Void
+  +updatePostalCode(code: String): Void
+  +validate(): Boolean
+}
+
 }
 
 package "Controllers" {
@@ -169,7 +181,6 @@ class ProductController {
   +store(data: Map): Boolean
   +update(id: Integer, data: Map): Boolean
   +destroy(id: Integer): Boolean
-  +getVariants(productId: Integer): List
 }
 
 class OrderController {
@@ -187,36 +198,30 @@ class OrderController {
 
 }
 
-' Наслідування
+' Inheritance
 Customer --|> User
 Administrator --|> User
 
-' Категорії і товари
+' Association
 Product "0..*" --> "1" Category
-
-' Один товар має багато варіантів
-Product "1" *-- "0..*" ProductVariant
-
-' Покупці та замовлення
 Customer "1" --> "0..*" Order
 
-' Кошик покупця
-Customer "1" o-- "0..1" Cart
+CartItem "0..*" --> "1" ProductVariant
+OrderItem "0..*" --> "1" ProductVariant
 
-' Позиції кошика і замовлення
+' Aggregation
+Customer "1" o-- "0..1" Cart
+Customer "1" o-- "0..*" Address
+
+' Composition
+Product "1" *-- "0..*" ProductVariant
 Cart "1" *-- "0..*" CartItem
 Order "1" *-- "1..*" OrderItem
 Order "1" *-- "0..1" Payment
 
-' Позиції посилаються на конкретний варіант товару
-CartItem "0..*" --> "1" ProductVariant
-OrderItem "0..*" --> "1" ProductVariant
-
-' Залежності контролерів
+' Controller dependencies
 ProductController ..> Product
 ProductController ..> ProductVariant
-ProductController ..> Category
-
 OrderController ..> Order
 OrderController ..> Payment
 

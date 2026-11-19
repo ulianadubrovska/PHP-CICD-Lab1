@@ -1,11 +1,10 @@
 
 @startuml
 left to right direction
-
 skinparam packageStyle rectangle
 skinparam shadowing false
 
-title Інтернет-магазин одягу та аксесуарів - Діаграма варіантів використання
+title Clothing & Accessories Store - Use Case Diagram
 
 actor Guest
 actor Customer
@@ -13,59 +12,58 @@ actor Administrator
 
 Customer --|> Guest
 
-rectangle "Clothing and Accessories Online Store" {
+rectangle "Clothing & Accessories Online Store" {
 
-    usecase "Browse Catalog" as UC1
-    usecase "Search Product" as UC2
-    usecase "Register Account" as UC3
+  usecase "Browse Catalog" as UC1
+  usecase "Search Product" as UC2
+  usecase "Register Account" as UC3
+  usecase "Filter Products" as UC4
 
-    usecase "Add Product to Cart" as UC4
-    usecase "Place Order" as UC5
-    usecase "View Order History" as UC6
+  usecase "Select Product Variant" as UC5
+  usecase "Add Product to Cart" as UC6
+  usecase "Place Order" as UC7
+  usecase "View Order History" as UC8
 
-    usecase "Manage Products" as UC7
-    usecase "Manage Orders" as UC8
-    usecase "View Sales Reports" as UC9
+  usecase "Manage Products" as UC9
+  usecase "Manage Orders" as UC10
+  usecase "View Sales Reports" as UC11
+  usecase "Manage Product Variants" as UC12
 
-    usecase "Check Variant Stock" as UC10
-    usecase "Select Payment Method" as UC11
-    usecase "Apply Discount" as UC12
+  usecase "Check Variant Stock" as UC13
+  usecase "Select Payment Method" as UC14
+  usecase "Select Delivery Method" as UC15
 
-    usecase "Search by Name" as UC13
-    usecase "Search by Category" as UC14
+  usecase "Apply Discount" as UC16
 
-    usecase "Select Size and Color" as UC15
-    usecase "Manage Product Variants" as UC16
-    usecase "Select Delivery Method" as UC17
+  usecase "Search by Name" as UC17
+  usecase "Search by Category" as UC18
 }
 
 Guest -- UC1
 Guest -- UC2
 Guest -- UC3
+Guest -- UC4
 
-Customer -- UC4
 Customer -- UC5
 Customer -- UC6
+Customer -- UC7
+Customer -- UC8
 
-Administrator -- UC7
-Administrator -- UC8
 Administrator -- UC9
-Administrator -- UC16
+Administrator -- UC10
+Administrator -- UC11
+Administrator -- UC12
 
-' Пошук за назвою і категорією
-UC13 --|> UC2
-UC14 --|> UC2
+UC6 ..> UC5 : <<include>>
+UC6 ..> UC13 : <<include>>
 
-' Додавання до кошика
-UC4 ..> UC15 : <<include>>
-UC4 ..> UC10 : <<include>>
+UC7 ..> UC13 : <<include>>
+UC7 ..> UC14 : <<include>>
+UC7 ..> UC15 : <<include>>
 
-' Оформлення замовлення
-UC5 ..> UC10 : <<include>>
-UC5 ..> UC11 : <<include>>
-UC5 ..> UC17 : <<include>>
+UC16 ..> UC7 : <<extend>>
 
-' Знижка як необов'язкове розширення
-UC12 ..> UC5 : <<extend>>
+UC17 --|> UC2
+UC18 --|> UC2
 
 @enduml
