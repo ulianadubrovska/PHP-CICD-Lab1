@@ -1,36 +1,52 @@
-name: PHP CI Application
+name: PHP Laravel CI
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+      - feature/laravel-routing-controllers
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
 
 jobs:
-  build:
+  laravel-tests:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
+          extensions: mbstring, xml, ctype, json, pdo_sqlite, sqlite3, fileinfo
+          coverage: none
 
-      - name: Install Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Lint code with Pint
-        run: ./vendor/bin/pint --test
-
-      - name: Run unit tests
-        run: ./vendor/bin/phpunit tests/Unit
-
-      - name: Demonstrate GitHub Secrets
-        env:
-          MY_SECRET: ${{ secrets.MY_SUPER_SECRET_KEY }}
+      - name: Prepare Laravel environment
         run: |
-          echo "Secret is configured: ${{ env.MY_SECRET != '' }}"
-          echo "Masked secret: $MY_SECRET"
+          cp .env.example .env
+          php artisan key:generate
+          touch database/database.sqlite
+
+      - name: Run database migrations
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: sqlite
+
+      - name: Check code style
+        run: vendor/bin/pint --test
+
+      - name: Run Laravel tests
+        run: php artisan test
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          SESSION_DRIVER: array
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync

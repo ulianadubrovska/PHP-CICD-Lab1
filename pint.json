@@ -1,0 +1,7 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "legacy-labs",
+        "temp_laravel"
+    ]
+}
