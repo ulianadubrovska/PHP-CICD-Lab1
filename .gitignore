@@ -1,4 +1,16 @@
 /vendor/
+/node_modules/
 /.env
+/.env.*
+!/.env.example
+/public/build/
+/public/hot
+/storage/*.key
+/storage/logs/*
+/bootstrap/cache/*.php
+/temp_laravel/
+/legacy-labs/vendor/
+/legacy-labs/.env
+/.phpunit.result.cache
 /.idea/
 /.vscode/
