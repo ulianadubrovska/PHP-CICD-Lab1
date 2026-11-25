@@ -4,91 +4,93 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
-    // Демонстраційні товари інтернет-магазину.
-    // У лабораторній №5 базу даних ще не використовуємо.
-    private array $items = [
-        [
-            'id' => 1,
-            'name' => 'Футболка Oversize',
-            'description' => 'Бавовняна футболка вільного крою',
-            'category_id' => 1,
-            'price' => 1200.0,
-            'stock' => 12,
-        ],
-        [
-            'id' => 2,
-            'name' => 'Джинси Straight Fit',
-            'description' => 'Джинси прямого крою',
-            'category_id' => 2,
-            'price' => 1850.0,
-            'stock' => 8,
-        ],
-        [
-            'id' => 3,
-            'name' => 'Шкіряний ремінь',
-            'description' => 'Аксесуар із натуральної шкіри',
-            'category_id' => 5,
-            'price' => 700.0,
-            'stock' => 20,
-        ],
-    ];
-
-    // GET /catalog — отримання всіх товарів.
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
+        $products = Product::query()
+            ->with(['category', 'reviews'])
+            ->where('is_active', true)
+            ->paginate(15);
+
         return response()->json([
             'status' => 'success',
-            'count' => count($this->items),
-            'data' => $this->items,
-        ], 200);
+            'data' => $products,
+        ]);
     }
 
-    // GET /catalog/{id} — пошук конкретного товару.
-    public function show(string $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        foreach ($this->items as $item) {
-            if ($item['id'] === (int) $id) {
-                return response()->json([
-                    'status' => 'success',
-                    'data' => $item,
-                ], 200);
-            }
-        }
+        $product = Product::with([
+            'category',
+            'reviews.user',
+        ])->findOrFail($id);
 
         return response()->json([
-            'status' => 'error',
-            'message' => 'Товар із таким ID не знайдено.',
-        ], 404);
+            'status' => 'success',
+            'data' => $product,
+        ]);
     }
 
-    // POST /catalog — створення нового товару.
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
+            'category_id' => [
+                'required',
+                'integer',
+                'exists:categories,id',
+            ],
             'name' => ['required', 'string', 'min:2', 'max:255'],
-            'description' => ['required', 'string', 'min:5'],
-            'category_id' => ['required', 'integer', 'min:1'],
+            'sku' => ['required', 'string', 'max:255', 'unique:products,sku'],
+            'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
+            'stock_quantity' => ['required', 'integer', 'min:0'],
+            'is_active' => ['sometimes', 'boolean'],
         ]);
 
-        $newItem = [
-            'id' => count($this->items) + 1,
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'category_id' => (int) $validated['category_id'],
-            'price' => (float) $validated['price'],
-            'stock' => (int) $validated['stock'],
-        ];
+        $product = Product::create($validated);
+        $product->load('category');
 
         return response()->json([
             'status' => 'created',
-            'data' => $newItem,
+            'data' => $product,
         ], 201);
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+
+        $validated = $request->validate([
+            'category_id' => [
+                'sometimes',
+                'integer',
+                'exists:categories,id',
+            ],
+            'name' => ['sometimes', 'string', 'min:2', 'max:255'],
+            'sku' => [
+                'sometimes',
+                'string',
+                'max:255',
+                Rule::unique('products', 'sku')->ignore($product->id),
+            ],
+            'description' => ['nullable', 'string'],
+            'price' => ['sometimes', 'numeric', 'min:0'],
+            'stock_quantity' => ['sometimes', 'integer', 'min:0'],
+            'is_active' => ['sometimes', 'boolean'],
+        ]);
+
+        $product->update($validated);
+        $product->load('category');
+
+        return response()->json([
+            'status' => 'updated',
+            'data' => $product,
+        ]);
     }
 }
