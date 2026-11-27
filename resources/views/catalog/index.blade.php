@@ -9,10 +9,14 @@
         <p class="text-secondary mb-0">
             Асортимент одягу та аксесуарів нашого магазину
         </p>
-        <a href="{{ route('shop.catalog.create') }}"
-            class="btn btn-primary">
-            + Додати товар
-        </a>
+
+@can('create', \App\Models\Product::class)
+    <a href="{{ route('shop.catalog.create') }}"
+       class="btn btn-primary">
+        + Додати товар
+    </a>
+@endcan
+
     </div>
 </div>
 
@@ -58,31 +62,37 @@
                             <td>{{ $product->reviews_count }}</td>
 
 
+
 <td>
-    <div class="d-flex flex-wrap gap-2">
+    <div class="d-flex gap-2">
         <a href="{{ route('shop.catalog.show', $product->id) }}"
            class="btn btn-sm btn-outline-primary">
             Перегляд
         </a>
 
-        <a href="{{ route('shop.catalog.edit', $product->id) }}"
-           class="btn btn-sm btn-outline-warning">
-            Редагувати
-        </a>
+        @can('update', $product)
+            <a href="{{ route('shop.catalog.edit', $product->id) }}"
+               class="btn btn-sm btn-outline-warning">
+                Редагувати
+            </a>
+        @endcan
 
-        <form action="{{ route('shop.catalog.destroy', $product->id) }}"
-              method="POST"
-              onsubmit="return confirm('Видалити цей товар?')">
-            @csrf
-            @method('DELETE')
+        @can('delete', $product)
+            <form action="{{ route('shop.catalog.destroy', $product->id) }}"
+                  method="POST"
+                  onsubmit="return confirm('Видалити товар?')">
+                @csrf
+                @method('DELETE')
 
-            <button type="submit"
-                    class="btn btn-sm btn-outline-danger">
-                Видалити
-            </button>
-        </form>
+                <button type="submit"
+                        class="btn btn-sm btn-outline-danger">
+                    Видалити
+                </button>
+            </form>
+        @endcan
     </div>
 </td>
+
                         </tr>
                     @empty
                         <tr>

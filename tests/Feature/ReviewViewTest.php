@@ -14,6 +14,13 @@ class ReviewViewTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
+
     public function test_reviews_page_displays_reviews(): void
     {
         $review = Review::factory()->create([
