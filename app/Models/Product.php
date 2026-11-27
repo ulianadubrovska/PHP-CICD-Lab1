@@ -66,6 +66,11 @@ class Product extends Model
         )->withPivot('quantity')->withTimestamps();
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // Товар може мати багато відгуків
     public function reviews(): HasMany
     {

@@ -14,6 +14,13 @@ class UserViewTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
+
     public function test_users_page_displays_users(): void
     {
         $user = User::factory()->create();
@@ -62,7 +69,7 @@ class UserViewTest extends TestCase
         ])
             ->assertSessionHasErrors('email');
 
-        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('users', 2);
     }
 
     public function test_can_update_user(): void

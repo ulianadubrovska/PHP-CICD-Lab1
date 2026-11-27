@@ -6,12 +6,20 @@ namespace Tests\Feature;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class PaymentViewTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_payments_page_displays_payments(): void
     {

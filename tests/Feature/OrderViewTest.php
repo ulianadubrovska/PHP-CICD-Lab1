@@ -14,6 +14,13 @@ class OrderViewTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
+
     public function test_orders_page_displays_orders(): void
     {
         $order = Order::factory()->create();

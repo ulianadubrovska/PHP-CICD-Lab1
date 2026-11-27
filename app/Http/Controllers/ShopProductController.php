@@ -9,6 +9,7 @@ use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class ShopProductController extends Controller
@@ -36,6 +37,8 @@ class ShopProductController extends Controller
 
     public function create(): View
     {
+        Gate::authorize('create', Product::class);
+
         $categories = Category::orderBy('name')->get();
 
         return view('catalog.create', compact('categories'));
@@ -43,6 +46,8 @@ class ShopProductController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        Gate::authorize('create', Product::class);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'sku' => ['required', 'string', 'max:100', 'unique:products,sku'],
@@ -53,7 +58,8 @@ class ShopProductController extends Controller
             'is_active' => ['required', 'boolean'],
         ]);
 
-        Product::create($validated);
+        // Власником нового товару стає поточний користувач.
+        $request->user()->products()->create($validated);
 
         return redirect()
             ->route('shop.catalog.index')
@@ -63,6 +69,9 @@ class ShopProductController extends Controller
     public function edit(int $id): View
     {
         $product = Product::findOrFail($id);
+
+        Gate::authorize('update', $product);
+
         $categories = Category::orderBy('name')->get();
 
         return view('catalog.edit', compact('product', 'categories'));
@@ -71,6 +80,8 @@ class ShopProductController extends Controller
     public function update(Request $request, int $id): RedirectResponse
     {
         $product = Product::findOrFail($id);
+
+        Gate::authorize('update', $product);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:3', 'max:255'],
@@ -97,6 +108,8 @@ class ShopProductController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $product = Product::findOrFail($id);
+
+        Gate::authorize('delete', $product);
 
         if ($product->orderItems()->exists()) {
             return redirect()

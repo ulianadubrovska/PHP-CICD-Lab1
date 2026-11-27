@@ -54,6 +54,37 @@
             <a class="nav-link" href="{{ route('shop.deliveries.index') }}">
                 Доставки
             </a>
+
+        @guest
+            <a class="nav-link" href="{{ route('login') }}">
+                Увійти
+            </a>
+
+            <a class="nav-link" href="{{ route('register') }}">
+                Реєстрація
+            </a>
+        </a>
+        @endguest
+
+
+@auth
+    <span class="navbar-text ms-3">
+        {{ Auth::user()->name }}
+    </span>
+
+    <form action="{{ route('logout') }}"
+          method="POST"
+          class="ms-2 d-flex align-items-center">
+        @csrf
+
+        <button type="submit"
+                class="btn btn-sm btn-outline-light">
+            Вийти
+        </button>
+    </form>
+@endauth
+
+
         </div>
     </div>
 </nav>

@@ -1,0 +1,455 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Fashion Store REST API",
+        "description": "Документація захищеного API інтернет-магазину одягу та аксесуарів. Лабораторна робота №8.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000/api/v1",
+            "description": "Локальний сервер Fashion Store"
+        }
+    ],
+    "paths": {
+        "/health": {
+            "get": {
+                "tags": [
+                    "System"
+                ],
+                "summary": "Перевірити роботу Fashion Store API",
+                "operationId": "14039960f5c35aafcd0adcc381fc5f34",
+                "responses": {
+                    "200": {
+                        "description": "API працює успішно",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Реєстрація користувача",
+                "operationId": "6404a2c0b02919c6ad0fa7ea2a60d3a2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Уляна"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "lab8@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Password123!"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Password123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Користувача створено, повернуто Bearer-токен"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    },
+                    "429": {
+                        "description": "Забагато запитів"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Вхід та отримання Bearer-токена",
+                "operationId": "906207985d0dc214b7fe1edb0624ae26",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "lab8@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Password123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Успішний вхід, повернуто Bearer-токен"
+                    },
+                    "422": {
+                        "description": "Неправильні дані"
+                    },
+                    "429": {
+                        "description": "Забагато запитів"
+                    }
+                }
+            }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Дані авторизованого користувача",
+                "operationId": "1bcce0ed614c04aa91f0f2c15704ceb8",
+                "responses": {
+                    "200": {
+                        "description": "Дані користувача"
+                    },
+                    "401": {
+                        "description": "Потрібна авторизація"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Вихід та відкликання токена",
+                "operationId": "bd0b5d76c1ac752cac9471494395ed2b",
+                "responses": {
+                    "200": {
+                        "description": "Вихід виконано"
+                    },
+                    "401": {
+                        "description": "Потрібна авторизація"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/products": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Отримати список товарів",
+                "operationId": "2549a4913ab01c7a16413aa3d2a14a7f",
+                "responses": {
+                    "200": {
+                        "description": "Список товарів із пагінацією"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Створити новий товар",
+                "operationId": "e56da798791d8d376a6077837b494ea0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "sku",
+                                    "category_id",
+                                    "price",
+                                    "stock_quantity",
+                                    "is_active"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Жіноча футболка"
+                                    },
+                                    "sku": {
+                                        "type": "string",
+                                        "example": "API-LAB8-001"
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Базова футболка"
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 899
+                                    },
+                                    "stock_quantity": {
+                                        "type": "integer",
+                                        "example": 15
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Товар створено"
+                    },
+                    "401": {
+                        "description": "Потрібна авторизація"
+                    },
+                    "403": {
+                        "description": "Доступ заборонено"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/products/{id}": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Переглянути один товар",
+                "operationId": "1fea35de4e2da7f18fc710d38cc67afb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Дані товару"
+                    },
+                    "404": {
+                        "description": "Товар не знайдено"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Редагувати власний товар",
+                "operationId": "7acbf803380378f225aa9b748073bdac",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "sku",
+                                    "category_id",
+                                    "price",
+                                    "stock_quantity",
+                                    "is_active"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Оновлена футболка"
+                                    },
+                                    "sku": {
+                                        "type": "string",
+                                        "example": "API-LAB8-001"
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Оновлений опис"
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "example": 999
+                                    },
+                                    "stock_quantity": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Товар оновлено"
+                    },
+                    "401": {
+                        "description": "Потрібна авторизація"
+                    },
+                    "403": {
+                        "description": "Це чужий товар"
+                    },
+                    "404": {
+                        "description": "Товар не знайдено"
+                    },
+                    "422": {
+                        "description": "Помилка валідації"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Видалити власний товар",
+                "operationId": "1d093944b8fa143658c80adcb6aa0f2c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Товар видалено"
+                    },
+                    "401": {
+                        "description": "Потрібна авторизація"
+                    },
+                    "403": {
+                        "description": "Це чужий товар"
+                    },
+                    "404": {
+                        "description": "Товар не знайдено"
+                    },
+                    "409": {
+                        "description": "Товар є в замовленнях"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Персональний Bearer-токен Laravel Sanctum",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "System",
+            "description": "System"
+        },
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "Products",
+            "description": "Products"
+        }
+    ]
+}

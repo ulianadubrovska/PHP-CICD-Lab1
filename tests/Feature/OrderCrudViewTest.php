@@ -7,12 +7,20 @@ namespace Tests\Feature;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class OrderCrudViewTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_edit_form_displays_order(): void
     {
@@ -109,6 +117,14 @@ class OrderCrudViewTest extends TestCase
         ])->assertSessionHasErrors('quantities');
 
         $this->assertDatabaseCount('order_items', 0);
+    }
+
+    public function test_guest_cannot_access_orders(): void
+    {
+        auth()->logout();
+
+        $this->get('/shop/orders')
+            ->assertRedirect(route('login'));
     }
 
     public function test_can_delete_pending_order_without_payment(): void

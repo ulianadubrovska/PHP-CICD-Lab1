@@ -15,6 +15,7 @@ use App\Http\Controllers\ShopPaymentController;
 use App\Http\Controllers\ShopProductController;
 use App\Http\Controllers\ShopReviewController;
 use App\Http\Controllers\ShopUserController;
+use App\Http\Controllers\WebAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -27,7 +28,7 @@ Route::get('/health', function () {
     ]);
 })->name('health');
 
-// Маршрути товарів
+// РњР°СЂС€СЂСѓС‚Рё С‚РѕРІР°СЂС–РІ
 Route::prefix('catalog')->name('catalog.')->group(function () {
     Route::get('/', [ProductController::class, 'index'])
         ->name('index');
@@ -46,11 +47,11 @@ Route::prefix('catalog')->name('catalog.')->group(function () {
         ->name('update');
 });
 
-// Маршрут кошика
+// РњР°СЂС€СЂСѓС‚ РєРѕС€РёРєР°
 Route::get('/cart/summary', [CartController::class, 'summary'])
     ->name('cart.summary');
 
-// Маршрути категорій
+// РњР°СЂС€СЂСѓС‚Рё РєР°С‚РµРіРѕСЂС–Р№
 Route::prefix('categories')->name('categories.')->group(function () {
     Route::get('/', [CategoryController::class, 'index'])
         ->name('index');
@@ -64,7 +65,7 @@ Route::prefix('categories')->name('categories.')->group(function () {
         ->name('store');
 });
 
-// Маршрути замовлень
+// РњР°СЂС€СЂСѓС‚Рё Р·Р°РјРѕРІР»РµРЅСЊ
 Route::prefix('orders')->name('orders.')->group(function () {
     Route::get('/', [OrderController::class, 'index'])
         ->name('index');
@@ -112,34 +113,41 @@ Route::prefix('reviews')->name('reviews.')->group(function () {
 Route::prefix('shop/catalog')
     ->name('shop.catalog.')
     ->group(function () {
+
+        // Р”РѕСЃС‚СѓРїРЅС– РІСЃС–Рј
         Route::get('/', [ShopProductController::class, 'index'])
             ->name('index');
-
-        Route::get('/create', [ShopProductController::class, 'create'])
-            ->name('create');
-
-        Route::post('/', [ShopProductController::class, 'store'])
-            ->name('store');
-
-        Route::get('/{id}/edit', [ShopProductController::class, 'edit'])
-            ->whereNumber('id')
-            ->name('edit');
-
-        Route::put('/{id}', [ShopProductController::class, 'update'])
-            ->whereNumber('id')
-            ->name('update');
-
-        Route::delete('/{id}', [ShopProductController::class, 'destroy'])
-            ->whereNumber('id')
-            ->name('destroy');
 
         Route::get('/{id}', [ShopProductController::class, 'show'])
             ->whereNumber('id')
             ->name('show');
+
+        // Р›РёС€Рµ РґР»СЏ Р°РІС‚РѕСЂРёР·РѕРІР°РЅРёС… РєРѕСЂРёСЃС‚СѓРІР°С‡С–РІ
+        Route::middleware('auth')->group(function () {
+
+            Route::get('/create', [ShopProductController::class, 'create'])
+                ->name('create');
+
+            Route::post('/', [ShopProductController::class, 'store'])
+                ->name('store');
+
+            Route::get('/{id}/edit', [ShopProductController::class, 'edit'])
+                ->whereNumber('id')
+                ->name('edit');
+
+            Route::put('/{id}', [ShopProductController::class, 'update'])
+                ->whereNumber('id')
+                ->name('update');
+
+            Route::delete('/{id}', [ShopProductController::class, 'destroy'])
+                ->whereNumber('id')
+                ->name('destroy');
+        });
     });
 
 Route::prefix('shop/orders')
     ->name('shop.orders.')
+    ->middleware('auth')
     ->group(function () {
         Route::get('/', [ShopOrderController::class, 'index'])
             ->name('index');
@@ -165,6 +173,7 @@ Route::prefix('shop/orders')
 
 Route::prefix('shop/categories')
     ->name('shop.categories.')
+    ->middleware('auth')
     ->group(function () {
         Route::get('/', [ShopCategoryController::class, 'index'])
             ->name('index');
@@ -190,6 +199,7 @@ Route::prefix('shop/categories')
 
 Route::prefix('shop/carts')
     ->name('shop.carts.')
+    ->middleware('auth')
     ->group(function () {
         Route::get('/', [ShopCartController::class, 'index'])
             ->name('index');
@@ -213,6 +223,7 @@ Route::prefix('shop/carts')
 
 Route::prefix('shop/reviews')
     ->name('shop.reviews.')
+    ->middleware('auth')
     ->group(function () {
         Route::get('/', [ShopReviewController::class, 'index'])
             ->name('index');
@@ -238,6 +249,7 @@ Route::prefix('shop/reviews')
 
 Route::prefix('shop/users')
     ->name('shop.users.')
+    ->middleware('auth')
     ->group(function () {
         Route::get('/', [ShopUserController::class, 'index'])
             ->name('index');
@@ -263,6 +275,7 @@ Route::prefix('shop/users')
 
 Route::prefix('shop/payments')
     ->name('shop.payments.')
+    ->middleware('auth')
     ->group(function () {
         Route::get('/', [ShopPaymentController::class, 'index'])
             ->name('index');
@@ -288,6 +301,7 @@ Route::prefix('shop/payments')
 
 Route::prefix('shop/deliveries')
     ->name('shop.deliveries.')
+    ->middleware('auth')
     ->group(function () {
         Route::get('/', [ShopDeliveryController::class, 'index'])
             ->name('index');
@@ -310,3 +324,19 @@ Route::prefix('shop/deliveries')
             ->whereNumber('id')
             ->name('destroy');
     });
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [WebAuthController::class, 'showLogin'])
+        ->name('login');
+
+    Route::post('/login', [WebAuthController::class, 'login']);
+
+    Route::get('/register', [WebAuthController::class, 'showRegister'])
+        ->name('register');
+
+    Route::post('/register', [WebAuthController::class, 'register']);
+});
+
+Route::post('/logout', [WebAuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
